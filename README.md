@@ -1,4 +1,4 @@
-# INTROGEN — Task Spec Builder
+# Task Spec Builder
 
 A React-based visual editor for building task specification JSON files. Workers can compose text blocks with rich formatting, insert "Next" buttons between them, and export/import the resulting linked-list spec.
 

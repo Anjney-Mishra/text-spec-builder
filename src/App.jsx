@@ -1,16 +1,57 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import TextBlock from './components/TextBlock'
 import NextButton from './components/NextButton'
 import { generateSpec } from './utils/specGenerator'
 import { parseSpec } from './utils/specParser'
 import './App.css'
 
+const STORAGE_KEY = 'introgen_blocks'
+
+function loadFromStorage() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    }
+  } catch {}
+  return [{ id: 'block-1', type: 'text', content: '' }]
+}
+
 function App() {
-  const [blocks, setBlocks] = useState([
-    { id: 'block-1', type: 'text', content: '' }
-  ])
+  const [blocks, setBlocks] = useState(loadFromStorage)
   const contentRef = useRef({})
   const fileInputRef = useRef(null)
+
+  // Initialize contentRef from loaded blocks
+  useEffect(() => {
+    blocks.forEach(block => {
+      if (block.type === 'text' && block.content) {
+        contentRef.current[block.id] = block.content
+      }
+    })
+  }, [])
+
+  // Save to localStorage whenever blocks change
+  useEffect(() => {
+    const blocksToSave = blocks.map(block => {
+      if (block.type === 'text') {
+        return { ...block, content: contentRef.current[block.id] || block.content || '' }
+      }
+      return block
+    })
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(blocksToSave))
+  }, [blocks])
+
+  const saveToStorage = useCallback(() => {
+    const blocksToSave = blocks.map(block => {
+      if (block.type === 'text') {
+        return { ...block, content: contentRef.current[block.id] || '' }
+      }
+      return block
+    })
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(blocksToSave))
+  }, [blocks])
 
   const addTextBlock = useCallback(() => {
     const newId = `block-${Date.now()}`
@@ -24,7 +65,8 @@ function App() {
 
   const updateBlockContent = useCallback((id, content) => {
     contentRef.current[id] = content
-  }, [])
+    saveToStorage()
+  }, [saveToStorage])
 
   const removeBlock = useCallback((id) => {
     setBlocks(prev => prev.filter(block => block.id !== id))
@@ -47,6 +89,14 @@ function App() {
     a.click()
     URL.revokeObjectURL(url)
   }, [blocks])
+
+  const resetAll = useCallback(() => {
+    if (window.confirm('Are you sure? This will clear all blocks and reset the editor.')) {
+      contentRef.current = {}
+      localStorage.removeItem(STORAGE_KEY)
+      setBlocks([{ id: `block-${Date.now()}`, type: 'text', content: '' }])
+    }
+  }, [])
 
   const uploadJson = useCallback((e) => {
     const file = e.target.files[0]
@@ -79,6 +129,9 @@ function App() {
       <nav className="navbar">
         <div className="navbar-title">Text Spec Builder</div>
         <div className="navbar-actions">
+          <button className="nav-btn nav-btn-reset" onClick={resetAll}>
+            Reset
+          </button>
           <button className="nav-btn nav-btn-upload" onClick={() => fileInputRef.current?.click()}>
             Upload JSON
           </button>

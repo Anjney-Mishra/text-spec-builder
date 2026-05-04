@@ -48,6 +48,17 @@ body {
   transition: all 0.2s;
 }
 
+.nav-btn-reset {
+  background: transparent;
+  border: 1.5px solid rgba(248, 81, 73, 0.4);
+  color: #f85149;
+}
+
+.nav-btn-reset:hover {
+  border-color: #f85149;
+  background: rgba(248, 81, 73, 0.1);
+}
+
 .nav-btn-upload {
   background: transparent;
   border: 1.5px solid rgba(255, 255, 255, 0.2);

@@ -23,7 +23,6 @@ function App() {
   const contentRef = useRef({})
   const fileInputRef = useRef(null)
 
-  // Initialize contentRef from loaded blocks
   useEffect(() => {
     blocks.forEach(block => {
       if (block.type === 'text' && block.content) {
@@ -32,7 +31,6 @@ function App() {
     })
   }, [])
 
-  // Save to localStorage whenever blocks change
   useEffect(() => {
     const blocksToSave = blocks.map(block => {
       if (block.type === 'text') {
@@ -53,14 +51,25 @@ function App() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(blocksToSave))
   }, [blocks])
 
-  const addTextBlock = useCallback(() => {
-    const newId = `block-${Date.now()}`
-    setBlocks(prev => [...prev, { id: newId, type: 'text', content: '' }])
-  }, [])
+  const insertBlockAfter = useCallback((afterId, type) => {
+    setBlocks(prev => {
+      const index = prev.findIndex(b => b.id === afterId)
 
-  const addNextButton = useCallback(() => {
-    const newId = `next-${Date.now()}`
-    setBlocks(prev => [...prev, { id: newId, type: 'next' }])
+      if (type === 'next') {
+        const currentBlock = prev[index]
+        if (currentBlock.type === 'next') return prev
+        if (index + 1 < prev.length && prev[index + 1].type === 'next') return prev
+      }
+
+      const newId = type === 'text' ? `block-${Date.now()}` : `next-${Date.now()}`
+      const newBlock = type === 'text'
+        ? { id: newId, type: 'text', content: '' }
+        : { id: newId, type: 'next' }
+
+      const updated = [...prev]
+      updated.splice(index + 1, 0, newBlock)
+      return updated
+    })
   }, [])
 
   const updateBlockContent = useCallback((id, content) => {
@@ -127,7 +136,7 @@ function App() {
   return (
     <div className="app">
       <nav className="navbar">
-        <div className="navbar-title">Text Spec Builder</div>
+        <div className="navbar-title">Task Spec Builder</div>
         <div className="navbar-actions">
           <button className="nav-btn nav-btn-reset" onClick={resetAll}>
             Reset
@@ -151,31 +160,36 @@ function App() {
       <div className="container">
         <div className="blocks-container">
           {blocks.map((block) => (
-            block.type === 'text' ? (
-              <TextBlock
-                key={block.id}
-                id={block.id}
-                initialContent={block.content}
-                onChange={updateBlockContent}
-                onRemove={removeBlock}
-              />
-            ) : (
-              <NextButton
-                key={block.id}
-                id={block.id}
-                onRemove={removeBlock}
-              />
-            )
+            <div key={block.id} className="block-wrapper">
+              {block.type === 'text' ? (
+                <TextBlock
+                  id={block.id}
+                  initialContent={block.content}
+                  onChange={updateBlockContent}
+                  onRemove={removeBlock}
+                />
+              ) : (
+                <NextButton
+                  id={block.id}
+                  onRemove={removeBlock}
+                />
+              )}
+              <div className="inline-actions">
+                <button
+                  className="inline-btn inline-btn-text"
+                  onClick={() => insertBlockAfter(block.id, 'text')}
+                >
+                  + Text
+                </button>
+                <button
+                  className="inline-btn inline-btn-next"
+                  onClick={() => insertBlockAfter(block.id, 'next')}
+                >
+                  + Next
+                </button>
+              </div>
+            </div>
           ))}
-        </div>
-
-        <div className="actions">
-          <button className="btn btn-text" onClick={addTextBlock}>
-            Add Text
-          </button>
-          <button className="btn btn-next" onClick={addNextButton}>
-            Add Next Button
-          </button>
         </div>
       </div>
     </div>

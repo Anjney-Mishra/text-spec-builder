@@ -241,42 +241,51 @@ body {
   background: rgba(248, 81, 73, 0.1);
 }
 
-.actions {
-  display: flex;
-  gap: 12px;
-  width: 100%;
-  justify-content: center;
+.block-wrapper {
+  position: relative;
 }
 
-.btn {
-  padding: 10px 22px;
-  border-radius: 8px;
-  font-size: 0.85rem;
+.inline-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding: 8px 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.block-wrapper:hover .inline-actions {
+  opacity: 1;
+}
+
+.inline-btn {
+  padding: 4px 12px;
+  border-radius: 5px;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  letter-spacing: 0.3px;
   transition: all 0.2s;
 }
 
-.btn-text {
-  background: #161B22;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #d0d0d0;
+.inline-btn-text {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #a0a0a0;
 }
 
-.btn-text:hover {
-  border-color: rgba(255, 255, 255, 0.3);
+.inline-btn-text:hover {
+  border-color: rgba(255, 255, 255, 0.4);
   color: #ffffff;
-  background: #1c2229;
+  background: rgba(255, 255, 255, 0.04);
 }
 
-.btn-next {
-  background: #2DB562;
-  border: 1px solid #2DB562;
-  color: #ffffff;
+.inline-btn-next {
+  background: transparent;
+  border: 1px solid rgba(45, 181, 98, 0.3);
+  color: #2DB562;
 }
 
-.btn-next:hover {
-  background: #34c76e;
-  border-color: #34c76e;
+.inline-btn-next:hover {
+  border-color: #2DB562;
+  background: rgba(45, 181, 98, 0.08);
 }

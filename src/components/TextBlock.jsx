@@ -50,6 +50,15 @@ function TextBlock({ id, initialContent, onChange, onRemove }) {
     checkActiveFormats()
   }, [checkActiveFormats])
 
+  const handlePaste = useCallback((e) => {
+    e.preventDefault()
+    const text = e.clipboardData.getData('text/plain')
+    document.execCommand('insertText', false, text)
+    if (editorRef.current) {
+      onChange(id, editorRef.current.innerHTML)
+    }
+  }, [id, onChange])
+
   const handleMouseUp = useCallback(() => {
     checkActiveFormats()
   }, [checkActiveFormats])
@@ -90,6 +99,7 @@ function TextBlock({ id, initialContent, onChange, onRemove }) {
         onInput={handleInput}
         onKeyDown={handleKeyDown}
         onKeyUp={handleKeyUp}
+        onPaste={handlePaste}
         onMouseUp={handleMouseUp}
       />
     </div>
